@@ -26,11 +26,21 @@ namespace JT1078Http2RTP
             response.Append("Host: 127.0.0.1\r\n\r\n");
             return Encoding.UTF8.GetBytes(response.ToString());
         }
-
+        /// <summary>
+        /// HTTP头数据
+        /// </summary>
         public List<byte> headerBytes = new List<byte>();
-
+        /// <summary>
+        /// 是否需要读HTTP头
+        /// </summary>
         public bool MustReadHeader { get; protected set; }
-
+        /// <summary>
+        /// 没有HTTP协议封装
+        /// </summary>
+        public bool NoHttpPackage { get; protected set; }
+        /// <summary>
+        /// HTTP头标识符
+        /// </summary>
         private bool f1, f2, f3;
         /// <summary>
         /// Chunked分包长度数据
@@ -233,8 +243,20 @@ namespace JT1078Http2RTP
         /// <param name="analyze"></param>
         public void SplitChunkedData(byte[] bts, int offset, int count, AnalyzeData analyze)
         {
+            if (NoHttpPackage)
+            {
+                analyze(bts, offset, count);
+                return;
+            }
             if (MustReadHeader)
             {
+                //首包数据为特征数据表示无HTTP封装
+                if (bts.Length > offset + 3 && bts[offset] == 0x30 && bts[offset + 1] == 0x31 && bts[offset + 2] == 0x63 && bts[offset + 3] == 0x64)
+                {
+                    NoHttpPackage = true;
+                    analyze(bts, offset, count);
+                    return;
+                }
                 var hlen = ReadHeader(bts, offset, count);
                 if (hlen < 0)
                 {
