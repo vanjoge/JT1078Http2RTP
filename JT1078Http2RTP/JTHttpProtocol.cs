@@ -298,7 +298,8 @@ namespace JT1078Http2RTP
                         else
                         {
                             analyze(bts, dataIndex, datalen);
-                            count -= datalen;
+                            count = blen - datalen;
+                            offset = dataIndex + datalen;
                         }
                     }
                     else
