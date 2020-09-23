@@ -13,9 +13,11 @@ namespace JT1078Http2RTP
         {
             var key = GetKey();
             var jtHttp = JTHClient.Start(this, key, httpUrl, Server1078, Port1078);
-
+            if (jtHttp == null)
+            {
+                return false;
+            }
             dit[key] = jtHttp;
-
             return true;
         }
 

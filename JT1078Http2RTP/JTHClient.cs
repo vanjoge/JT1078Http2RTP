@@ -96,7 +96,7 @@ namespace JT1078Http2RTP
             {
                 Started = false;
                 channelhttp.Close();
-                jt1078Client.Stop();
+                jt1078Client?.Stop();
 
                 MyTask.RemoveItem(this.Key);
 
